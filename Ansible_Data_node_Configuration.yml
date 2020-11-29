@@ -1,0 +1,50 @@
+---
+- hosts: all
+  vars_prompt:
+  - name: Directory_Name
+    prompt: Enter Datanode Directory Name
+    private: no
+  - name: namenode_IP
+    prompt: Enter NameNode IPv4 Address
+    private: no
+  - name: namenode_port 
+    prompt: Enter An Open Port For NameNode
+    private: no
+  tasks:
+      - name: Copy hadoop-1.2.1-1.x86_64.rpm
+        copy: 
+          src: hadoop-1.2.1-1.x86_64.rpm        
+          dest: hadoop-1.2.1-1.x86_64.rpm
+      - name: Copy jdk-8u171-linux-x64.rpm
+        copy: 
+          src: jdk-8u171-linux-x64.rpm  
+          dest: jdk-8u171-linux-x64.rpm
+        
+      - name: JDK Installation
+        yum: 
+            name: jdk-8u171-linux-x64.rpm
+            state: present
+      - name: Hadoop Installation
+        command: rpm -i hadoop-1.2.1-1.x86_64.rpm --force   
+      - name: Updating HDFS-site File
+        blockinfile:
+          path: /etc/hadoop/hdfs-site.xml
+          marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+          insertafter: "<configuration>"
+          block: |
+              <property>
+              <name>dfs.data.dir</name>
+              <value>/{{ Directory_Name }}</value>
+              </property>
+      - name: Updating Core-site File
+        blockinfile:
+          path: /etc/hadoop/core-site.xml
+          marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+          insertafter: "<configuration>"
+          block: |
+              <property>
+              <name>fs.default.name</name>
+              <value>hdfs://{{ namenode_IP }}:{{ namenode_port }}</value>
+              </property>
+      - name: starting hadoop Services
+        shell: "hadoop-daemon.sh start datanode"
