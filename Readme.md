@@ -31,7 +31,6 @@ $ pip3 install ansible
 # Run the project
 $ ansible-playbook yaml-file
 
-# The server will initialize in the <http://localhost:3000>
 ```
 
 Made with :heart: by <a href="https://github.com/cybergodayush" target="_blank">{{Ayush}}</a>
